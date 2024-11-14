@@ -6,7 +6,7 @@ require('dotenv').config();                 // Load environment variables from .
 const { GoogleGenerativeAI } = require('@google/generative-ai'); // Import Google Gemini API SDK
 
 const app = express();                      // Create an Express application
-const port = process.env.PORT || 3000;                        // Set the port for the server
+const port = process.env.PORT || 3000;      // Set the port for the server
 
 app.use(express.json());                    // Middleware to parse JSON request bodies
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from 'public' folder
@@ -23,7 +23,11 @@ app.post('/analyze', async (req, res) => {
     
     try {
         // Launch Puppeteer and create a new browser page
-        const browser = await puppeteer.launch({ headless: true });
+        const browser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            executablePath: '/opt/render/.cache/puppeteer/chrome' // Render's cache path
+        });
         const page = await browser.newPage();
         
         // Go to the specified URL and wait until the page has fully loaded
