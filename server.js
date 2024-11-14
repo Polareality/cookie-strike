@@ -6,7 +6,7 @@ require('dotenv').config();                 // Load environment variables from .
 const { GoogleGenerativeAI } = require('@google/generative-ai'); // Import Google Gemini API SDK
 
 const app = express();                      // Create an Express application
-const PORT = 3000;                          // Set the port for the server
+const port = process.env.PORT || 3000;                        // Set the port for the server
 
 app.use(express.json());                    // Middleware to parse JSON request bodies
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from 'public' folder
@@ -105,8 +105,8 @@ app.post('/summarize', async (req, res) => {
 });
 
 // Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+pp.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
 
 
