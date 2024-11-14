@@ -105,7 +105,7 @@ app.post('/summarize', async (req, res) => {
 });
 
 // Start the server
-pp.listen(port, () => {
+app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
 
