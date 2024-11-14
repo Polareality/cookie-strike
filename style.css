@@ -1,54 +1,58 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    font-family: 'Roboto', sans-serif; /* Modern font */
+    background-color: #1c1c1c; /* Dark background */
     margin: 0;
     padding: 20px;
+    color: #cacaca; /* Light text color for dark background */
 }
 
 h1 {
+    font-size: 3.0rem;
     text-align: center;
-    color: #333;
+    color: #ffffff; /* Lighter heading color */
 }
 
 .container {
     max-width: 800px;
     margin: auto;
-    padding: 20px;
-    background: white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
+    padding: 30px;
+    background: #2b2b2b; /* Darker background for container */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
 }
 
 input[type="text"] {
-    width: calc(100% - 22px);
-    padding: 10px;
+    width: 100%;
+    padding: 12px;
     margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    border: 1px solid #5e5e5e; /* Darker border color */
+    background-color: #333333; /* Dark input background */
+    color: #d3d3d3; /* Light text */
+    border-radius: 8px;
+    font-size: 1rem;
 }
 
 button {
-    padding: 10px 15px;
-    background-color: #28a745;
+    padding: 12px 20px;
+    background-color: #33be14b7; /* Darker button color */
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
+    font-size: 1rem;
     cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 button:hover {
-    background-color: #218838;
+    background-color: #3cb3229c; /* Slightly lighter on hover */
 }
 
 #results {
     margin-top: 20px;
-    padding: 10px;
-    background-color: #e9ecef;
-    border-radius: 5px;
-}
-
-canvas {
-    margin-top: 20px;
+    padding: 15px;
+    background-color: #333333; /* Darker background for results */
+    border-radius: 8px;
+    color: #d3d3d3;
 }
 
 .cookie-count {
@@ -56,6 +60,11 @@ canvas {
     align-items: center;
     justify-content: space-between;
     margin: 5px 0;
+    font-weight: bold;
+    color: #d3d3d3;
+    background-color: #444444; /* Darker background for counts */
+    padding: 8px;
+    border-radius: 5px;
 }
 
 /* Icon styles */
@@ -63,59 +72,168 @@ canvas {
     position: relative;
     display: inline-block;
     cursor: pointer;
-}
-
-/* Ionicon-specific styling */
-.icon ion-icon {
-    font-size: 20px; /* Adjust icon size */
-    color: #333; /* Adjust color for better visibility */
+    margin-left: 8px;
 }
 
 /* Tooltip styles */
 .tooltip {
-    visibility: hidden; /* Initially hidden */
-    width: 200px;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: #fff;
+    visibility: hidden;
+    width: 220px;
+    background-color: rgba(255, 255, 255, 0.8); /* Light tooltip on dark background */
+    color: #000; /* Dark text for contrast */
     text-align: center;
-    border-radius: 5px;
-    padding: 5px;
+    border-radius: 8px;
+    padding: 8px;
     position: absolute;
     z-index: 1;
-    bottom: 125%; /* Position above the icon */
+    bottom: 125%;
     left: 50%;
     transform: translateX(-50%);
     opacity: 0;
-    transition: opacity 0.3s, visibility 0.3s; /* Smooth transition */
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: rgba(255, 255, 255, 0.8) transparent transparent transparent;
 }
 
 .icon:hover .tooltip,
 .icon:focus .tooltip {
-    visibility: visible; /* Show tooltip on hover/focus */
-    opacity: 1; /* Fully visible */
+    visibility: visible;
+    opacity: 1;
 }
 
 /* Title Screen Styling */
 .title-screen {
     text-align: center;
     padding: 30px;
-    background-color: #1c1c1e;
-    color: #a29bfe;
+    background-color: #4b6584; /* Darker background for title */
+    color: white;
     border-radius: 8px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
 .title-screen h2 {
-    font-size: 1.8em;
+    font-size: 2em;
     font-weight: bold;
-    margin: 0;
-    color: #a29bfe;
+    color: #ffffff;
 }
 
 .title-screen p {
     font-size: 1.1em;
-    color: #e1e1e1;
     margin-top: 10px;
-    margin-bottom: 0;
+    color: #d3d3d3;
+}
+
+/* Chart Styling */
+canvas {
+    margin-top: 20px;
+}
+
+#loading-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    font-size: 1.2em;
+    color: #ffffff;
+}
+
+#loading-icon ion-icon {
+    font-size: 2em;
+    margin-right: 10px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.logo {
+    width: 150px; /* Adjust as needed */
+    height: auto; /* Maintains aspect ratio */
+    display: block;
+}
+
+img.logo {
+    position: absolute;
+    top: 10px; /* Adjust this value */
+    left: 10px; /* Adjust this value */
+    z-index: 10; /* Ensure it stays on top of other elements */
+}
+
+/* Navigation Bar Styling */
+nav ul {
+    display: flex;
+    list-style-type: none;
+    padding: 0;
+    background-color: #333333; /* Darker background for nav bar */
+    margin: 0;
+    justify-content: center;
+}
+
+nav ul li {
+    margin: 0 20px;
+}
+
+nav ul li a {
+    color: #d3d3d3; /* Light text for nav links */
+    text-decoration: none;
+    font-weight: bold;
+    padding: 15px;
+    display: block;
+}
+
+nav ul li a:hover {
+    background-color: #937145; /* Darker hover color */
+    border-radius: 5px;
+}
+
+/* Styling for the Privacy Policy Text Box and Description */
+#policy-input {
+    width: 100%;
+    height: 300px; /* Fixed height */
+    resize: none; /* Prevents resizing */
+    overflow-y: auto; /* Enables vertical scrolling */
+    padding: 10px;
+    border: 1px solid #5e5e5e; /* Darker border */
+    background-color: #333333; /* Dark background */
+    color: #d3d3d3; /* Light text */
+    border-radius: 8px;
+    font-size: 1rem;
+    line-height: 1.5;
+    box-sizing: border-box;
+    margin-top: 10px;
+}
+
+.container p {
+    font-size: 1.1rem;
+    color: #d3d3d3; /* Light text color */
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* Increased Font Size for Older Audience */
+.container {
+    font-size: 1.2rem;
+    line-height: 1.6;
+}
+
+h2 {
+    font-size: 1.6rem;
+    color: #d4a373; /* Heading color for better contrast */
+}
+
+p, li {
+    font-size: 1.2rem;
+    color: #d3d3d3;
 }
