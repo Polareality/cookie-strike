@@ -4,7 +4,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "postinstall": "npx puppeteer-core install --cache-dir=/opt/render/.cache/puppeteer",
+    "postinstall": "npx puppeteer install", // Automatic install of Chromium with puppeteer
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -20,7 +20,7 @@
     "npm": "^10.9.0",
     "openai": "^4.71.0",
     "outdated": "^0.1.1",
-    "puppeteer-core": "^23.7.0",
+    "puppeteer": "^23.7.0", // Use puppeteer (not puppeteer-core) to handle Chromium automatically
     "whatwg-url": "^14.0.0"
   }
 }
