@@ -4,7 +4,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "postinstall": "PUPPETEER_CACHE_DIR=/opt/render/.cache/puppeteer npx puppeteer install",
+    "postinstall": "npx puppeteer-core install --cache-dir=/opt/render/.cache/puppeteer",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -20,7 +20,7 @@
     "npm": "^10.9.0",
     "openai": "^4.71.0",
     "outdated": "^0.1.1",
-    "puppeteer": "^23.7.0",
+    "puppeteer-core": "^23.7.0",
     "whatwg-url": "^14.0.0"
   }
 }
