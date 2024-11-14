@@ -10,6 +10,18 @@
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 </head>
 <body>
+    <header>
+        <img src="./Logo.png" alt="Website Logo" class="logo">
+        <!-- Navigation Bar -->
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="privacy.html">Privacy Policy Summarizer</a></li>
+                <li><a href="cookie-info.html">Cookie Guide</a></li>
+            </ul>
+        </nav>
+    </header>
+
     <div class="container">
         <h1>Cookie Strike</h1>
         <div class="title-screen">
@@ -21,13 +33,14 @@
             <input type="text" id="url-input" placeholder="Enter website URL (Example: https://example.com)" required>
             <button type="submit">Analyze Cookies</button>
         </form>
+        
+        <div id="loading-icon" style="display: none;">
+            <ion-icon name="refresh-circle" spin="true"></ion-icon>
+            <p>Analyzing cookies...</p>
+        </div>
         <div id="results"></div>
-
-        <h2>Summarize a Privacy Policy</h2>
-        <textarea id="policy-input" rows="10" placeholder="Paste the privacy policy here..." required></textarea>
-        <button id="summarize-button">Summarize Policy</button>
-        <div id="summary-result"></div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
