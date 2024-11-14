@@ -1,40 +1,62 @@
-document.getElementById('url-form').addEventListener('submit', async (event) => {
-    event.preventDefault();
+// URL Form Submission Handler
+const urlForm = document.getElementById('url-form');
+if (urlForm) {
+    urlForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
 
-    const urlInput = document.getElementById('url-input');
-    const url = urlInput.value;
+        const urlInput = document.getElementById('url-input');
+        const url = urlInput ? urlInput.value : '';
 
-    const response = await fetch('/analyze', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ url })
+        // Show loading icon and hide results while loading
+        const loadingIcon = document.getElementById('loading-icon');
+        const resultsDiv = document.getElementById('results');
+        if (loadingIcon) loadingIcon.style.display = 'flex';
+        if (resultsDiv) resultsDiv.style.display = 'none';
+
+        const response = await fetch('/analyze', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url })
+        });
+
+        const data = await response.json();
+
+        // Hide loading icon and show results when done
+        if (loadingIcon) loadingIcon.style.display = 'none';
+        if (resultsDiv) {
+            resultsDiv.style.display = 'block';
+            displayResults(data, url);
+        }
     });
+}
 
-    const data = await response.json();
-    displayResults(data, url);
-});
+// Privacy Policy Summarize Button Handler
+const summarizeButton = document.getElementById('summarize-button');
+if (summarizeButton) {
+    summarizeButton.addEventListener('click', async () => {
+        const policyInput = document.getElementById('policy-input');
+        const policyText = policyInput ? policyInput.value : '';
 
-// New event listener for summarizing privacy policy
-document.getElementById('summarize-button').addEventListener('click', async () => {
-    const policyInput = document.getElementById('policy-input');
-    const policyText = policyInput.value;
+        const response = await fetch('/summarize', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ policy: policyText })
+        });
 
-    const response = await fetch('/summarize', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ policy: policyText })
+        const data = await response.json();
+        displaySummary(data);
     });
+}
 
-    const data = await response.json();
-    displaySummary(data);
-});
-
+// Display Results Function
 function displayResults(data, url) {
     const resultsDiv = document.getElementById('results');
+    if (!resultsDiv) return;
+    
     resultsDiv.innerHTML = ''; // Clear previous results
 
     if (data.error) {
@@ -48,12 +70,16 @@ function displayResults(data, url) {
         functional: "Functional cookies allow specific features like social media sharing and collecting feedback from users.",
         performance: "Performance cookies help analyze key performance metrics to enhance user experience.",
         advertisement: "Advertisement cookies deliver tailored ads based on previous site visits and measure ad effectiveness.",
-        other: "Other cookies are uncategorized cookies that are still being analyzed."
+        other: "Other cookies are uncategorized cookies that are still being analyzed.",
+        httponly: "HttpOnly cookies are a type of cookie that can only be accessed by the server and are not accessible through JavaScript (Our website uses this)",
     };
 
     resultsDiv.innerHTML += `<h3>Types of Cookies:</h3>`;
 
+    // Include HttpOnly cookies in the displayed cookie counts
     for (const [key, count] of Object.entries(data.cookieCounts)) {
+        if (key !== "httponly") continue; // This makes sure to add HttpOnly cookies to the chart and results
+        
         resultsDiv.innerHTML += `
             <div class="cookie-count">
                 <span>${key.charAt(0).toUpperCase() + key.slice(1)}: ${count}</span>
@@ -64,6 +90,20 @@ function displayResults(data, url) {
             </div>`;
     }
 
+    // Existing cookie count display code (necessary, analytics, etc.)
+    for (const [key, count] of Object.entries(data.cookieCounts)) {
+        if (key !== "httponly") { // Skip HttpOnly for this section
+            resultsDiv.innerHTML += `
+                <div class="cookie-count">
+                    <span>${key.charAt(0).toUpperCase() + key.slice(1)}: ${count}</span>
+                    <span class="icon" tabindex="0">
+                        <ion-icon name="information-circle-outline"></ion-icon>
+                        <span class="tooltip">${tooltipDescriptions[key]}</span>
+                    </span>
+                </div>`;
+        }
+    }
+
     const urlObj = new URL(url);
     const websiteName = urlObj.hostname.replace('www.', '').split('.')[0];
     const formattedName = websiteName.charAt(0).toUpperCase() + websiteName.slice(1);
@@ -71,8 +111,9 @@ function displayResults(data, url) {
     resultsDiv.innerHTML += `<h2>Cookie statistics for ${formattedName}</h2>`;
     resultsDiv.innerHTML += `<p>Total number of cookies: ${data.totalCookies}</p>`;
 
+    // Include HttpOnly cookies in the chart data
     const chartData = {
-        labels: ['Necessary', 'Analytics', 'Functional', 'Performance', 'Advertisement', 'Other'],
+        labels: ['Necessary', 'Analytics', 'Functional', 'Performance', 'Advertisement', 'Other', 'HttpOnly'],
         datasets: [{
             label: 'Number of Cookies',
             data: [
@@ -81,7 +122,8 @@ function displayResults(data, url) {
                 data.cookieCounts.functional,
                 data.cookieCounts.performance,
                 data.cookieCounts.advertisement,
-                data.cookieCounts.other
+                data.cookieCounts.other,
+                data.cookieCounts.httponly
             ],
             backgroundColor: [
                 'rgba(75, 192, 192, 0.2)',
@@ -89,7 +131,8 @@ function displayResults(data, url) {
                 'rgba(153, 102, 255, 0.2)',
                 'rgba(255, 99, 132, 0.2)',
                 'rgba(255, 159, 64, 0.2)',
-                'rgba(201, 203, 207, 0.2)'
+                'rgba(201, 203, 207, 0.2)',
+                'rgba(123, 104, 238, 0.2)' // Add a new color for HttpOnly
             ],
             borderColor: [
                 'rgba(75, 192, 192, 1)',
@@ -97,7 +140,8 @@ function displayResults(data, url) {
                 'rgba(153, 102, 255, 1)',
                 'rgba(255, 99, 132, 1)',
                 'rgba(255, 159, 64, 1)',
-                'rgba(201, 203, 207, 1)'
+                'rgba(201, 203, 207, 1)',
+                'rgba(123, 104, 238, 1)' // Border color for HttpOnly
             ],
             borderWidth: 1
         }]
@@ -107,7 +151,7 @@ function displayResults(data, url) {
     ctx.width = 400;
     ctx.height = 200;
     resultsDiv.appendChild(ctx);
-    const myChart = new Chart(ctx, {
+    new Chart(ctx, {
         type: 'bar',
         data: chartData,
         options: {
@@ -130,9 +174,11 @@ function displayResults(data, url) {
     });
 }
 
-// New function to display structured summary
+// Display Summary Function
 function displaySummary(data) {
     const summaryDiv = document.getElementById('summary-result');
+    if (!summaryDiv) return;
+
     summaryDiv.innerHTML = ''; // Clear previous summary
 
     if (data.error) {
@@ -140,14 +186,12 @@ function displaySummary(data) {
         return;
     }
 
-    // Generalized regex to match any "Pros" and "Cons" section
     const prosMatch = data.summary.match(/Pros:\*\*(.*?)Cons:\*\*/s);
     const consMatch = data.summary.match(/Cons:\*\*(.*)/s);
 
     const pros = prosMatch ? prosMatch[1].trim().split(' * ').filter(item => item) : [];
     const cons = consMatch ? consMatch[1].trim().split(' * ').filter(item => item) : [];
 
-    // Create the pros and cons lists
     summaryDiv.innerHTML = `<h3>Privacy Policy Summary:</h3>`;
 
     if (pros.length > 0) {
