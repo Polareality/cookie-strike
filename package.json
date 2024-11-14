@@ -1,8 +1,10 @@
 {
   "name": "cookie-strike",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
+    "postinstall": "npx puppeteer install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
