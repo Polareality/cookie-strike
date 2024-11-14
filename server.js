@@ -1,7 +1,7 @@
 const express = require('express'); // Import Express framework
 const axios = require('axios'); // Import Axios for HTTP requests
 const path = require('path'); // Import path module for file paths
-const puppeteer = require('puppeteer'); // Import Puppeteer for browser automation
+const puppeteer = require('puppeteer-core'); // Import Puppeteer Core for browser automation
 require('dotenv').config(); // Load environment variables from .env file
 const { GoogleGenerativeAI } = require('@google/generative-ai'); // Import Google Gemini API SDK
 
@@ -26,7 +26,7 @@ app.post('/analyze', async (req, res) => {
         const browser = await puppeteer.launch({
             headless: true,
             args: ['--no-sandbox', '--disable-setuid-sandbox'],
-            executablePath: '/opt/render/.cache/puppeteer/chrome' // Render's cache path to Chromium
+            executablePath: puppeteer.executablePath() // Use puppeteer-core's default executablePath
         });
         const page = await browser.newPage();
         
