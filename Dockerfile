@@ -1,7 +1,7 @@
-# Use an official Node.js image with Chromium pre-installed
+# Use an official Node.js image as a base
 FROM node:16-slim
 
-# Install dependencies needed for Puppeteer (including Chromium)
+# Install dependencies needed for Puppeteer (including Chromium and system libraries)
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
@@ -18,10 +18,8 @@ RUN apt-get update && apt-get install -y \
     libxss1 \
     lsb-release \
     xdg-utils \
+    curl \
     && rm -rf /var/lib/apt/lists/*
-
-# Install Puppeteer globally (it will automatically download Chromium)
-RUN npm install -g puppeteer
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
@@ -32,7 +30,10 @@ COPY package.json package-lock.json ./
 # Install project dependencies
 RUN npm install
 
-# Copy the rest of your application
+# Install Puppeteer
+RUN npm install puppeteer
+
+# Copy the rest of your application code to the container
 COPY . .
 
 # Expose the port your app will run on
@@ -40,4 +41,3 @@ EXPOSE 3000
 
 # Start the application
 CMD ["node", "server.js"]
-
