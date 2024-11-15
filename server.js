@@ -89,13 +89,13 @@ app.post('/summarize', async (req, res) => {
     const { policy } = req.body;
     try {
         // Instruction to format summary as bullet points with pros and cons
-        const prompt = `Please summarize the following privacy policy into HTML bullet points, listing the pros and cons separately:
+        const prompt = `Please summarize the following privacy policy into bullet points, listing the pros and cons separately:
         
         Policy:
         ${policy}`;
 
-        const result = await model.generateContent(prompt); // Generate the summary using Google Gemini
-        const summary = result.response.text() || "<p>No summary generated.</p>";
+        const result = await model.generateText({ prompt }); // Use generateText instead of generateContent
+        const summary = result?.text || "No summary generated."; // Ensure proper handling of response
         
         res.json({ summary });
     } catch (error) {
