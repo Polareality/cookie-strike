@@ -1,38 +1,42 @@
-const express = require('express'); 
-const axios = require('axios'); 
-const path = require('path'); 
-const puppeteer = require('puppeteer'); 
-require('dotenv').config(); 
-const { GoogleGenerativeAI } = require('@google/generative-ai'); 
+const express = require('express');         // Import Express framework
+const axios = require('axios');            // Import Axios for HTTP requests
+const path = require('path');              // Import path module for file paths
+const puppeteer = require('puppeteer-core'); // Import puppeteer-core
+require('dotenv').config();                // Load environment variables from .env file
+const { GoogleGenerativeAI } = require('@google/generative-ai'); // Import Google Gemini API SDK
 
-const app = express(); 
-const port = process.env.PORT || 3000; 
+const app = express();                     // Create an Express application
+const port = process.env.PORT || 3000;     // Set the port for the server
 
-app.use(express.json()); 
-app.use(express.static(path.join(__dirname, 'public'))); 
+app.use(express.json());                   // Middleware to parse JSON request bodies
+app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from 'public' folder
 
-const API_KEY = process.env.GOOGLE_API_KEY;  
+// Google Gemini API key and initialization
+const API_KEY = process.env.GOOGLE_API_KEY;  // Google API key from .env
 const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // Use the model you want
 
+// Endpoint to analyze cookies from a given URL
 app.post('/analyze', async (req, res) => {
     const { url } = req.body;
-
-    if (!url || !/^https?:\/\//.test(url)) {
-        return res.status(400).json({ error: 'Invalid URL provided' });
-    }
-
-    const formattedUrl = url.replace(/^https?:\/\//, '').replace(/\.com$/, '');
-
+    const formattedUrl = url.replace(/^https?:\/\//, '').replace(/\.com$/, ''); // Format URL for display
+    
     try {
-        console.log('Launching Puppeteer with URL:', url);
-        const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+        // Launch Puppeteer and create a new browser page
+        const browser = await puppeteer.launch({
+            headless: true,  // Run in headless mode (no UI)
+            executablePath: process.env.CHROME_PATH || '/usr/bin/chromium',  // Path to Chromium on Render
+            args: ['--no-sandbox', '--disable-setuid-sandbox']  // Disable sandboxing for security reasons
+        });
         const page = await browser.newPage();
         
+        // Go to the specified URL and wait until the page has fully loaded
         await page.goto(url, { waitUntil: 'networkidle2' });
 
+        // Retrieve all cookies from the page
         const cookies = await page.cookies();
 
+        // Define a structure to count different types of cookies
         const cookieCounts = {
             necessary: 0,
             analytics: 0,
@@ -43,6 +47,7 @@ app.post('/analyze', async (req, res) => {
             httponly: 0,
         };
 
+        // Classify cookies based on their attributes and names
         cookies.forEach(cookie => {
             const lowerCaseCookie = cookie.name.toLowerCase();
 
@@ -65,10 +70,13 @@ app.post('/analyze', async (req, res) => {
             }
         });
 
+        // Calculate the total number of cookies
         const totalCookies = Object.values(cookieCounts).reduce((sum, count) => sum + count, 0);
 
+        // Close the Puppeteer browser
         await browser.close();
 
+        // Send the cookie analysis as JSON response
         res.json({
             totalCookies,
             cookieCounts,
@@ -80,14 +88,17 @@ app.post('/analyze', async (req, res) => {
     }
 });
 
+// Endpoint to summarize a privacy policy using Google Gemini with pros and cons
 app.post('/summarize', async (req, res) => {
     const { policy } = req.body;
     try {
+        // Instruction to format summary as bullet points with pros and cons
         const prompt = `Please summarize the following privacy policy into bullet points, listing the pros and cons separately:
+        
         Policy:
         ${policy}`;
 
-        const result = await model.generateContent(prompt);
+        const result = await model.generateContent(prompt); // Generate the summary using Google Gemini
         const summary = result.response.text() || "No summary generated.";
         
         res.json({ summary });
@@ -97,6 +108,7 @@ app.post('/summarize', async (req, res) => {
     }
 });
 
+// Start the server
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
