@@ -6,7 +6,7 @@ require('dotenv').config();                 // Load environment variables from .
 const { GoogleGenerativeAI } = require('@google/generative-ai'); // Import Google Gemini API SDK
 
 const app = express();                      // Create an Express application
-const port = process.env.PORT || 3000;                         // Set the port for the server
+const port = process.env.PORT || 3000;      // Set the port for the server
 
 app.use(express.json());                    // Middleware to parse JSON request bodies
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from 'public' folder
@@ -89,13 +89,13 @@ app.post('/summarize', async (req, res) => {
     const { policy } = req.body;
     try {
         // Instruction to format summary as bullet points with pros and cons
-        const prompt = `Please summarize the following privacy policy into bullet points, listing the pros and cons separately:
+        const prompt = `Please summarize the following privacy policy into HTML bullet points, listing the pros and cons separately:
         
         Policy:
         ${policy}`;
 
         const result = await model.generateContent(prompt); // Generate the summary using Google Gemini
-        const summary = result.response.text() || "No summary generated.";
+        const summary = result.response.text() || "<p>No summary generated.</p>";
         
         res.json({ summary });
     } catch (error) {
