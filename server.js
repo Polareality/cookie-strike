@@ -1,18 +1,18 @@
-const express = require('express'); // Import Express framework
-const axios = require('axios'); // Import Axios for HTTP requests
-const path = require('path'); // Import path module for file paths
-const puppeteer = require('puppeteer'); // Import Puppeteer for browser automation
-require('dotenv').config(); // Load environment variables from .env file
+const express = require('express');         // Import Express framework
+const axios = require('axios');             // Import Axios for HTTP requests
+const path = require('path');               // Import path module for file paths
+const puppeteer = require('puppeteer');     // Import Puppeteer for browser automation
+require('dotenv').config();                 // Load environment variables from .env file
 const { GoogleGenerativeAI } = require('@google/generative-ai'); // Import Google Gemini API SDK
 
-const app = express(); // Create an Express application
-const port = process.env.PORT || 3000; // Set the port for the server
+const app = express();                      // Create an Express application
+const port = process.env.PORT || 3000;                        // Set the port for the server
 
-app.use(express.json()); // Middleware to parse JSON request bodies
+app.use(express.json());                    // Middleware to parse JSON request bodies
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from 'public' folder
 
 // Google Gemini API key and initialization
-const API_KEY = process.env.GOOGLE_API_KEY; // Google API key from .env
+const API_KEY = process.env.GOOGLE_API_KEY;  // Google API key from .env
 const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // Use the model you want
 
@@ -23,11 +23,7 @@ app.post('/analyze', async (req, res) => {
     
     try {
         // Launch Puppeteer and create a new browser page
-        const browser = await puppeteer.launch({
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox'],
-            executablePath: puppeteer.executablePath() // Use Puppeteer's default executable path
-        });
+        const browser = await puppeteer.launch({ headless: true });
         const page = await browser.newPage();
         
         // Go to the specified URL and wait until the page has fully loaded
@@ -93,10 +89,10 @@ app.post('/summarize', async (req, res) => {
     const { policy } = req.body;
     try {
         // Instruction to format summary as bullet points with pros and cons
-        const prompt = `Please summarize the following privacy policy into bullet points, listing the pros and cons separately:
+        const prompt = Please summarize the following privacy policy into bullet points, listing the pros and cons separately:
         
         Policy:
-        ${policy}`;
+        ${policy};
 
         const result = await model.generateContent(prompt); // Generate the summary using Google Gemini
         const summary = result.response.text() || "No summary generated.";
@@ -110,9 +106,8 @@ app.post('/summarize', async (req, res) => {
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(Server running on port ${port});
 });
-
 
 
 
