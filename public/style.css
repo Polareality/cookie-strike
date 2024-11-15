@@ -237,3 +237,36 @@ p, li {
     font-size: 1.2rem;
     color: #d3d3d3;
 }
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    color: #333;
+}
+
+.summary-container {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.summary-container h3 {
+    color: #333;
+    font-weight: bold;
+    margin-top: 1em;
+}
+
+.summary-container ul {
+    padding-left: 20px;
+    list-style-type: disc;
+}
+
+.summary-container li {
+    margin-bottom: 0.5em;
+}
