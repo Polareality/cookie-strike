@@ -26,7 +26,7 @@ app.post('/analyze', async (req, res) => {
         const browser = await puppeteer.launch({
             headless: true,
             args: ['--no-sandbox', '--disable-setuid-sandbox'],
-            executablePath: '/opt/render/.cache/puppeteer/chrome' // Render's cache path to Chromium
+            executablePath: puppeteer.executablePath() // Use Puppeteer's default executable path
         });
         const page = await browser.newPage();
         
