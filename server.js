@@ -16,7 +16,7 @@ fs.readdir(cachePath, (err, files) => {
 });
 
 const app = express();                      // Create an Express application
-const PORT = process.env.PORT || 3000;                        // Set the port for the server
+const PORT = process.env.PORT || 3000;      // Set the port for the server
 
 app.use(express.json());                    // Middleware to parse JSON request bodies
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from 'public' folder
@@ -30,15 +30,15 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // Use th
 app.post('/analyze', async (req, res) => {
     const { url } = req.body;
     const formattedUrl = url.replace(/^https?:\/\//, '').replace(/\.com$/, ''); // Format URL for display
-
+    
     try {
-        // Ensure Puppeteer uses the correct Chromium executable dynamically
+        // Ensure Puppeteer uses the correct Chromium executable
         const browser = await puppeteer.launch({
+            executablePath: puppeteer.executablePath(), // Dynamically resolve the Chromium path
             headless: true,
-            executablePath: puppeteer.executablePath(), // Dynamically resolve Chromium path
         });
         const page = await browser.newPage();
-
+        
         // Go to the specified URL and wait until the page has fully loaded
         await page.goto(url, { waitUntil: 'networkidle2' });
 
@@ -121,4 +121,3 @@ app.post('/summarize', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
-
