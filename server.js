@@ -2,6 +2,7 @@ const express = require('express');         // Import Express framework
 const axios = require('axios');            // Import Axios for HTTP requests
 const path = require('path');              // Import path module for file paths
 const puppeteer = require('puppeteer-core'); // Import puppeteer-core
+const chromium = require('chrome-aws-lambda'); // Import chrome-aws-lambda
 require('dotenv').config();                // Load environment variables from .env file
 const { GoogleGenerativeAI } = require('@google/generative-ai'); // Import Google Gemini API SDK
 
@@ -25,8 +26,9 @@ app.post('/analyze', async (req, res) => {
         // Launch Puppeteer and create a new browser page
         const browser = await puppeteer.launch({
             headless: true,  // Run in headless mode (no UI)
-            executablePath: process.env.CHROME_PATH || '/usr/bin/chromium',  // Path to Chromium on Render
-            args: ['--no-sandbox', '--disable-setuid-sandbox']  // Disable sandboxing for security reasons
+            executablePath: await chromium.executablePath || '/usr/bin/chromium', // Path to Chromium
+            args: chromium.args,  // AWS Lambda-specific Chromium arguments
+            defaultViewport: chromium.defaultViewport, // Default viewport for Chromium
         });
         const page = await browser.newPage();
         
