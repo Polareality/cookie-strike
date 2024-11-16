@@ -22,8 +22,11 @@ app.post('/analyze', async (req, res) => {
     const formattedUrl = url.replace(/^https?:\/\//, '').replace(/\.com$/, ''); // Format URL for display
     
     try {
-        // Launch Puppeteer and create a new browser page
-        const browser = await puppeteer.launch({ headless: true });
+        // Ensure Puppeteer uses the correct Chromium executable
+        const browser = await puppeteer.launch({
+            executablePath: '/opt/render/.cache/puppeteer/chrome/linux-130.0.6723.91/chrome', // Path to Chromium in Render
+            headless: true,
+        });
         const page = await browser.newPage();
         
         // Go to the specified URL and wait until the page has fully loaded
@@ -83,7 +86,6 @@ app.post('/analyze', async (req, res) => {
         res.status(500).json({ error: 'Error retrieving cookies from the provided URL.' });
     }
 });
-
 // Endpoint to summarize a privacy policy using Google Gemini with pros and cons
 app.post('/summarize', async (req, res) => {
     const { policy } = req.body;
