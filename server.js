@@ -30,15 +30,15 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // Use th
 app.post('/analyze', async (req, res) => {
     const { url } = req.body;
     const formattedUrl = url.replace(/^https?:\/\//, '').replace(/\.com$/, ''); // Format URL for display
-    
+
     try {
-        // Ensure Puppeteer uses the correct Chromium executable
+        // Ensure Puppeteer uses the correct Chromium executable dynamically
         const browser = await puppeteer.launch({
-            executablePath: '/opt/render/.cache/puppeteer/chrome/linux-130.0.6723.91/chrome', // Path to Chromium in Render
             headless: true,
+            executablePath: puppeteer.executablePath(), // Dynamically resolve Chromium path
         });
         const page = await browser.newPage();
-        
+
         // Go to the specified URL and wait until the page has fully loaded
         await page.goto(url, { waitUntil: 'networkidle2' });
 
@@ -96,6 +96,7 @@ app.post('/analyze', async (req, res) => {
         res.status(500).json({ error: 'Error retrieving cookies from the provided URL.' });
     }
 });
+
 // Endpoint to summarize a privacy policy using Google Gemini with pros and cons
 app.post('/summarize', async (req, res) => {
     const { policy } = req.body;
