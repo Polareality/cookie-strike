@@ -16,7 +16,7 @@ fs.readdir(cachePath, (err, files) => {
 });
 
 const app = express();                      // Create an Express application
-const PORT = process.env.PORT || 3000;      // Set the port for the server
+const PORT = process.env.PORT || 3000;                        // Set the port for the server
 
 app.use(express.json());                    // Middleware to parse JSON request bodies
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from 'public' folder
@@ -34,7 +34,7 @@ app.post('/analyze', async (req, res) => {
     try {
         // Ensure Puppeteer uses the correct Chromium executable
         const browser = await puppeteer.launch({
-            executablePath: puppeteer.executablePath(), // Dynamically resolve the Chromium path
+            executablePath: '/opt/render/.cache/puppeteer/chrome/linux-130.0.6723.91/chrome', // Path to Chromium in Render
             headless: true,
         });
         const page = await browser.newPage();
@@ -96,16 +96,15 @@ app.post('/analyze', async (req, res) => {
         res.status(500).json({ error: 'Error retrieving cookies from the provided URL.' });
     }
 });
-
 // Endpoint to summarize a privacy policy using Google Gemini with pros and cons
 app.post('/summarize', async (req, res) => {
     const { policy } = req.body;
     try {
         // Instruction to format summary as bullet points with pros and cons
-        const prompt = `Please summarize the following privacy policy into bullet points, listing the pros and cons separately:
+        const prompt = Please summarize the following privacy policy into bullet points, listing the pros and cons separately:
         
         Policy:
-        ${policy}`;
+        ${policy};
 
         const result = await model.generateContent(prompt); // Generate the summary using Google Gemini
         const summary = result.response.text() || "No summary generated.";
@@ -119,5 +118,5 @@ app.post('/summarize', async (req, res) => {
 
 // Start the server
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(Server is running on http://localhost:${PORT});
 });
