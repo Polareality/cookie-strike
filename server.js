@@ -4,6 +4,16 @@ const path = require('path');               // Import path module for file paths
 const puppeteer = require('puppeteer');     // Import Puppeteer for browser automation
 require('dotenv').config();                 // Load environment variables from .env file
 const { GoogleGenerativeAI } = require('@google/generative-ai'); // Import Google Gemini API SDK
+const fs = require('fs');
+// Debug: Check Puppeteer cache directory
+const cachePath = '/opt/render/.cache/puppeteer/chrome/';
+fs.readdir(cachePath, (err, files) => {
+    if (err) {
+        console.error('Error reading Puppeteer cache:', err);
+    } else {
+        console.log('Files in Puppeteer cache:', files);
+    }
+});
 
 const app = express();                      // Create an Express application
 const PORT = process.env.PORT || 3000;                        // Set the port for the server
