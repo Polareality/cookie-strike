@@ -22,21 +22,24 @@ app.post('/analyze', async (req, res) => {
     const formattedUrl = url.replace(/^https?:\/\//, '').replace(/\.com$/, ''); // Format URL for display
     
     try {
-        // Launch Puppeteer and create a new browser page
+        console.log("Launching Puppeteer...");
         const browser = await puppeteer.launch({
             headless: true,  // Run in headless mode (no UI)
             executablePath: process.env.CHROME_PATH || '/usr/bin/chromium', // Path to Chromium
             args: ['--no-sandbox', '--disable-setuid-sandbox'], // Necessary arguments for cloud environments
             defaultViewport: { width: 1280, height: 800 }, // Default viewport for Chromium
         });
-        const page = await browser.newPage();
+        console.log("Puppeteer launched successfully.");
         
-        // Go to the specified URL and wait until the page has fully loaded
+        const page = await browser.newPage();
+        console.log("Navigating to URL:", url);
+        
         await page.goto(url, { waitUntil: 'networkidle2' });
-
-        // Retrieve all cookies from the page
+        console.log("Page loaded successfully.");
+        
         const cookies = await page.cookies();
-
+        console.log("Cookies retrieved:", cookies);
+        
         // Define a structure to count different types of cookies
         const cookieCounts = {
             necessary: 0,
@@ -84,9 +87,14 @@ app.post('/analyze', async (req, res) => {
             formattedUrl
         });
     } catch (error) {
-        console.error(error);
+        console.error("Error during Puppeteer operations:", error);
         res.status(500).json({ error: 'Error retrieving cookies from the provided URL.' });
     }
+});
+
+// Handle GET requests to /analyze with a meaningful response
+app.get('/analyze', (req, res) => {
+    res.status(400).send('Please use POST to send data to this endpoint.');
 });
 
 // Endpoint to summarize a privacy policy using Google Gemini with pros and cons
