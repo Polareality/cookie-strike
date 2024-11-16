@@ -26,7 +26,7 @@ app.post('/analyze', async (req, res) => {
         // Launch Puppeteer and create a new browser page
         const browser = await puppeteer.launch({
             headless: true,  // Run in headless mode (no UI)
-            executablePath: await chromium.executablePath || '/usr/bin/chromium', // Path to Chromium
+            executablePath: chromium.executablePath || '/usr/bin/chromium', // Path to Chromium
             args: chromium.args,  // AWS Lambda-specific Chromium arguments
             defaultViewport: chromium.defaultViewport, // Default viewport for Chromium
         });
