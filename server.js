@@ -87,14 +87,15 @@ app.post('/analyze', async (req, res) => {
     }
 });
 // Endpoint to summarize a privacy policy using Google Gemini with pros and cons
+// Endpoint to summarize a privacy policy using Google Gemini with pros and cons
 app.post('/summarize', async (req, res) => {
     const { policy } = req.body;
     try {
         // Instruction to format summary as bullet points with pros and cons
-        const prompt = Please summarize the following privacy policy into bullet points, listing the pros and cons separately:
+        const prompt = `Please summarize the following privacy policy into bullet points, listing the pros and cons separately:
         
         Policy:
-        ${policy};
+        ${policy}`;
 
         const result = await model.generateContent(prompt); // Generate the summary using Google Gemini
         const summary = result.response.text() || "No summary generated.";
