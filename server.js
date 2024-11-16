@@ -1,7 +1,7 @@
 const express = require('express');         // Import Express framework
 const axios = require('axios');            // Import Axios for HTTP requests
 const path = require('path');              // Import path module for file paths
-const puppeteer = require('puppeteer-core'); // Import puppeteer-core
+const puppeteer = require('puppeteer');    // Import puppeteer
 require('dotenv').config();                // Load environment variables from .env file
 const { GoogleGenerativeAI } = require('@google/generative-ai'); // Import Google Gemini API SDK
 
@@ -16,25 +16,48 @@ const API_KEY = process.env.GOOGLE_API_KEY;  // Google API key from .env
 const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // Use the model you want
 
+// Helper function to validate HTTPS URLs
+function validateUrl(url) {
+    try {
+        const parsedUrl = new URL(url);
+        return parsedUrl.protocol === 'https:';
+    } catch (err) {
+        return false;
+    }
+}
+
 // Endpoint to analyze cookies from a given URL
 app.post('/analyze', async (req, res) => {
     const { url } = req.body;
+
+    // Validate URL
+    if (!validateUrl(url)) {
+        return res.status(400).json({ error: 'Only HTTPS URLs are supported.' });
+    }
+
     const formattedUrl = url.replace(/^https?:\/\//, '').replace(/\.com$/, ''); // Format URL for display
     
     try {
         console.log("Launching Puppeteer...");
         const browser = await puppeteer.launch({
             headless: true,  // Run in headless mode (no UI)
-            executablePath: process.env.CHROME_PATH || '/usr/bin/chromium', // Path to Chromium
-            args: ['--no-sandbox', '--disable-setuid-sandbox'], // Necessary arguments for cloud environments
-            defaultViewport: { width: 1280, height: 800 }, // Default viewport for Chromium
+            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'], // Necessary arguments
+            defaultViewport: { width: 1280, height: 800 } // Default viewport for Chromium
         });
-        console.log("Puppeteer launched successfully.");
-        
+
+        // Log browser events
+        browser.on('disconnected', () => console.log('Browser disconnected'));
+
         const page = await browser.newPage();
+
+        // Log page events for debugging
+        page.on('console', msg => console.log('PAGE LOG:', msg.text()));
+        page.on('error', err => console.error('PAGE ERROR:', err));
+        page.on('pageerror', pageErr => console.error('PAGE PAGEERROR:', pageErr));
+
         console.log("Navigating to URL:", url);
         
-        await page.goto(url, { waitUntil: 'networkidle2' });
+        await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 }); // Extend timeout to 60 seconds
         console.log("Page loaded successfully.");
         
         const cookies = await page.cookies();
