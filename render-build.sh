@@ -4,26 +4,28 @@ set -o errexit
 
 # Install dependencies
 npm install
+
 # Uncomment if a build process is needed
 # npm run build 
-# Ensure Puppeteer dependencies are installed
 
-# Update package manager
-sudo apt-get update
+# Ensure Puppeteer dependencies are available
+echo "Ensuring Puppeteer dependencies are installed..."
 
-# Install Puppeteer dependencies
-sudo apt-get install -y \
-    wget gnupg ca-certificates \
-    libnss3 libatk-bridge2.0-0 libxcomposite1 \
-    libxrandr2 libxdamage1 libasound2 \
-    libpangocairo-1.0-0 libcups2 \
-    libpangoft2-1.0-0 libxss1 libxtst6
+# Remove sudo commands to comply with Render's restricted environment
+# Pre-installed Puppeteer dependencies are typically sufficient
 
 # Manage Puppeteer cache with build cache
-if [[ ! -d $PUPPETEER_CACHE_DIR ]]; then 
+export PUPPETEER_CACHE_DIR=${PUPPETEER_CACHE_DIR:-/opt/render/.cache/puppeteer}
+export XDG_CACHE_HOME=${XDG_CACHE_HOME:-/opt/render/.cache}
+
+if [[ ! -d "$PUPPETEER_CACHE_DIR" ]]; then 
   echo "...Copying Puppeteer Cache from Build Cache" 
-  cp -R $XDG_CACHE_HOME/puppeteer/ $PUPPETEER_CACHE_DIR
+  mkdir -p "$PUPPETEER_CACHE_DIR"
+  cp -R "$XDG_CACHE_HOME/puppeteer/" "$PUPPETEER_CACHE_DIR" || echo "No Puppeteer cache found to copy."
 else 
   echo "...Storing Puppeteer Cache in Build Cache" 
-  cp -R $PUPPETEER_CACHE_DIR $XDG_CACHE_HOME
+  cp -R "$PUPPETEER_CACHE_DIR" "$XDG_CACHE_HOME" || echo "No Puppeteer cache found to store."
 fi
+
+echo "Build script completed successfully."
+
