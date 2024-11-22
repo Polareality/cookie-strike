@@ -7,7 +7,17 @@ npm install
 # Uncomment if a build process is needed
 # npm run build 
 # Ensure Puppeteer dependencies are installed
-apt-get update && apt-get install -y wget gnupg ca-certificates libnss3 libatk-bridge2.0-0 libxcomposite1 libxrandr2 libxdamage1 libasound2 libpangocairo-1.0-0 libcups2 libpangoft2-1.0-0 libxss1 libxtst6
+
+# Update package manager
+sudo apt-get update
+
+# Install Puppeteer dependencies
+sudo apt-get install -y \
+    wget gnupg ca-certificates \
+    libnss3 libatk-bridge2.0-0 libxcomposite1 \
+    libxrandr2 libxdamage1 libasound2 \
+    libpangocairo-1.0-0 libcups2 \
+    libpangoft2-1.0-0 libxss1 libxtst6
 
 # Manage Puppeteer cache with build cache
 if [[ ! -d $PUPPETEER_CACHE_DIR ]]; then 
