@@ -24,12 +24,13 @@ app.post('/analyze', async (req, res) => {
     try {
         const browser = await puppeteer.launch({
             headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox'],
-            timeout: 60000
+            args: ['--no-sandbox', '--disable-setuid-sandbox'], // Avoid permission errors
+            timeout: 60000 // Increase timeout to 60 seconds
         });
 
         const page = await browser.newPage();
 
+        // Block unnecessary requests (images, fonts, stylesheets)
         await page.setRequestInterception(true);
         page.on('request', (request) => {
             if (['image', 'stylesheet', 'font'].includes(request.resourceType())) {
@@ -39,12 +40,13 @@ app.post('/analyze', async (req, res) => {
             }
         });
 
+        // Retry logic for slow-loading pages
         let attempt = 0;
         let success = false;
         while (attempt < MAX_RETRIES && !success) {
             try {
-                await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
-                await page.waitForSelector('body');
+                await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 }); // Wait for network idle
+                await page.waitForSelector('body'); // Wait for the body to be fully loaded
                 success = true;
             } catch (error) {
                 attempt++;
@@ -58,6 +60,7 @@ app.post('/analyze', async (req, res) => {
         }
 
         const cookies = await page.cookies();
+
         const cookieCounts = {
             necessary: 0,
             analytics: 0,
@@ -103,7 +106,7 @@ app.post('/analyze', async (req, res) => {
 app.post('/summarize', async (req, res) => {
     const { policy } = req.body;
     try {
-        const prompt = `Please summarize the following privacy policy focusing on risks associated with cookies and data collection. Provide bullet points and only include relevant information about risks.\n\nPolicy:\n${policy}`;
+        const prompt = `Please summarize the following privacy policy into bullet points, listing the pros and cons separately:\n\nPolicy:\n${policy}`;
 
         const result = await model.generateContent(prompt);
         const summary = result.response.text() || "No summary generated.";
