@@ -253,10 +253,15 @@ button:hover{
   color: var(--text);
 }
 
-/* Hide empty boxes so you don't see blank bars */
-#results:empty,
-#summary-result:empty{
+/* Hide empty boxes WITHOUT breaking JS show/hide timing */
+#results,
+#summary-result{
   display: none;
+}
+
+#results:not(:empty),
+#summary-result:not(:empty){
+  display: block;
 }
 
 .cookie-count{
@@ -421,3 +426,4 @@ canvas{ margin-top: 18px; }
 
   h1{ font-size: 2.4rem; }
 }
+
