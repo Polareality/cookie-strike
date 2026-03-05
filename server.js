@@ -3,7 +3,7 @@ const axios = require('axios');
 const path = require('path');
 const puppeteer = require('puppeteer'); // Ensure this is the full puppeteer package
 require('dotenv').config();
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenAI } = require('@google/genai');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,9 +11,8 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const API_KEY = process.env.GOOGLE_API_KEY;
-const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const API_KEY = process.env.GOOGLE_API_KEY;  // Google API key from .env
+const ai = new GoogleGenAI({ apiKey:API_KEY});
 
 const MAX_RETRIES = 3; // Retry limit for failed page loads
 
@@ -121,3 +120,4 @@ app.post('/summarize', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+
