@@ -179,35 +179,51 @@ function displaySummary(data) {
     const summaryDiv = document.getElementById('summary-result');
     if (!summaryDiv) return;
 
-    summaryDiv.innerHTML = ''; // Clear previous summary
+    summaryDiv.innerHTML = '';
 
     if (data.error) {
         summaryDiv.innerHTML = `<p>${data.error}</p>`;
         return;
     }
 
-    const prosMatch = data.summary.match(/Pros:\*\*(.*?)Cons:\*\*/s);
-    const consMatch = data.summary.match(/Cons:\*\*(.*)/s);
+    summaryDiv.innerHTML = `<h3>Privacy Policy Summary:</h3>`;
+
+    const summaryText = (data.summary || "").trim();
+    if (!summaryText) {
+        summaryDiv.innerHTML += `<p>No summary generated.</p>`;
+        return;
+    }
+
+    // Try OLD format parsing first (Pros/Cons markdown-ish)
+    const prosMatch = summaryText.match(/Pros:\*\*(.*?)Cons:\*\*/s);
+    const consMatch = summaryText.match(/Cons:\*\*(.*)/s);
 
     const pros = prosMatch ? prosMatch[1].trim().split(' * ').filter(item => item) : [];
     const cons = consMatch ? consMatch[1].trim().split(' * ').filter(item => item) : [];
 
-    summaryDiv.innerHTML = `<h3>Privacy Policy Summary:</h3>`;
+    if (pros.length > 0 || cons.length > 0) {
+        if (pros.length > 0) {
+            summaryDiv.innerHTML += `<h4>Pros:</h4><ul>`;
+            pros.forEach(pro => {
+                summaryDiv.innerHTML += `<li>${pro}</li>`;
+            });
+            summaryDiv.innerHTML += `</ul>`;
+        }
 
-    if (pros.length > 0) {
-        summaryDiv.innerHTML += `<h4>Pros:</h4><ul>`;
-        pros.forEach(pro => {
-            summaryDiv.innerHTML += `<li>${pro}</li>`;
-        });
-        summaryDiv.innerHTML += `</ul>`;
+        if (cons.length > 0) {
+            summaryDiv.innerHTML += `<h4>Cons:</h4><ul>`;
+            cons.forEach(con => {
+                summaryDiv.innerHTML += `<li>${con}</li>`;
+            });
+            summaryDiv.innerHTML += `</ul>`;
+        }
+        return;
     }
 
-    if (cons.length > 0) {
-        summaryDiv.innerHTML += `<h4>Cons:</h4><ul>`;
-        cons.forEach(con => {
-            summaryDiv.innerHTML += `<li>${con}</li>`;
-        });
-        summaryDiv.innerHTML += `</ul>`;
-    }
+    // Fallback: show summary as-is (NEW format or anything else)
+    const pre = document.createElement('pre');
+    pre.style.whiteSpace = 'pre-wrap';
+    pre.style.wordBreak = 'break-word';
+    pre.textContent = summaryText;
+    summaryDiv.appendChild(pre);
 }
-
