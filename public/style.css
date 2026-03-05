@@ -1,239 +1,423 @@
-body {
-    font-family: 'Roboto', sans-serif; /* Modern font */
-    background-color: #1c1c1c; /* Dark background */
-    margin: 0;
-    padding: 20px;
-    color: #cacaca; /* Light text color for dark background */
+/* =========================
+   CookieStrike Clean Final CSS
+   Works with: index.html, privacy.html, cookie-info.html
+   ========================= */
+
+:root{
+  --bg: #0f172a;
+  --header: rgba(15,23,42,0.75);
+  --panel: rgba(30,41,59,0.92);
+  --panel-soft: rgba(15,23,42,0.35);
+  --border: rgba(255,255,255,0.10);
+
+  --text: #e5e7eb;
+  --muted: #a8b3c7;
+
+  --accent: #22c55e;
+  --accent-hover: #16a34a;
+
+  --shadow: 0 18px 40px rgba(0,0,0,0.35);
+  --radius: 14px;
 }
 
-h1 {
-    font-size: 3.0rem;
-    text-align: center;
-    color: #ffffff; /* Lighter heading color */
+*{ box-sizing: border-box; }
+
+html, body{ height: 100%; }
+html{ background: var(--bg); }
+
+body{
+  margin: 0;
+  padding: 18px;
+  font-family: 'Inter', 'Roboto', system-ui, -apple-system, Segoe UI, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  font-size: 18px;
 }
 
-.container {
-    max-width: 800px;
-    margin: auto;
-    padding: 30px;
-    background: #2b2b2b; /* Darker background for container */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    border-radius: 8px;
+/* Background gradient layer (renders immediately) */
+body::before{
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(1200px 700px at 15% 10%, rgba(99,102,241,0.25), transparent 60%),
+    radial-gradient(900px 500px at 85% 20%, rgba(34,197,94,0.15), transparent 60%),
+    var(--bg);
+  transform: translateZ(0);
 }
 
-input[type="text"] {
-    width: 100%;
-    padding: 12px;
-    margin: 10px 0;
-    border: 1px solid #5e5e5e; /* Darker border color */
-    background-color: #333333; /* Dark input background */
-    color: #d3d3d3; /* Light text */
-    border-radius: 8px;
-    font-size: 1rem;
+/* =========================
+   Header / Nav
+   ========================= */
+header{
+  max-width: 1100px;
+  margin: 0 auto 18px auto;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  background: var(--header);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.25);
+  backdrop-filter: blur(10px);
 }
 
-button {
-    padding: 12px 20px;
-    background-color: #33be14b7; /* Darker button color */
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
+.logo{
+  width: 160px;
+  height: auto;
+  display: block;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.35));
 }
 
-button:hover {
-    background-color: #3cb3229c; /* Slightly lighter on hover */
+nav{ flex: 1 1 auto; }
+
+nav ul{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
 }
 
-#results {
-    margin-top: 20px;
-    padding: 15px;
-    background-color: #333333; /* Darker background for results */
-    border-radius: 8px;
-    color: #d3d3d3;
+nav ul li{ margin: 0; }
+
+nav ul li a{
+  display: block;
+  padding: 16px 22px;
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 800;
+  font-size: 1.35rem;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 
-.cookie-count {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: 5px 0;
-    font-weight: bold;
-    color: #d3d3d3;
-    background-color: #444444; /* Darker background for counts */
-    padding: 8px;
-    border-radius: 5px;
+nav ul li a:hover{
+  background: rgba(255,255,255,0.06);
+  border-color: var(--border);
+  transform: translateY(-1px);
 }
 
-/* Icon styles */
-.icon {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-    margin-left: 8px;
+/* =========================
+   Main container
+   ========================= */
+.container{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 34px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
-/* Tooltip styles */
-.tooltip {
-    visibility: hidden;
-    width: 220px;
-    background-color: rgba(255, 255, 255, 0.8); /* Light tooltip on dark background */
-    color: #000; /* Dark text for contrast */
-    text-align: center;
-    border-radius: 8px;
-    padding: 8px;
-    position: absolute;
-    z-index: 1;
-    bottom: 125%;
-    left: 50%;
-    transform: translateX(-50%);
-    opacity: 0;
-    transition: opacity 0.3s, visibility 0.3s;
+h1{
+  margin: 6px 0 18px 0;
+  text-align: center;
+  font-size: 3.1rem;
+  letter-spacing: 0.2px;
 }
 
-.tooltip::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 6px;
-    border-style: solid;
-    border-color: rgba(255, 255, 255, 0.8) transparent transparent transparent;
+h2{
+  margin: 28px 0 12px 0;
+  font-size: 1.9rem;
+}
+
+p{
+  color: var(--muted);
+  line-height: 1.75;
+  margin: 10px 0;
+  font-size: 1.15rem;
+}
+
+li{
+  font-size: 1.15rem;
+  line-height: 1.75;
+  color: var(--text);
+}
+
+strong{ color: #ffffff; }
+
+/* Hero section on index */
+.title-screen{
+  text-align: center;
+  padding: 26px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, rgba(99,102,241,0.22), rgba(34,197,94,0.12));
+  margin-bottom: 18px;
+}
+
+.title-screen h2{
+  margin: 0 0 10px 0;
+  font-size: 1.9rem;
+}
+
+.title-screen p{
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+/* =========================
+   Forms / Inputs
+   ========================= */
+form{ margin-top: 8px; }
+
+input[type="text"]{
+  width: 100%;
+  padding: 16px;
+  margin: 10px 0 12px 0;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(15,23,42,0.45);
+  color: var(--text);
+  outline: none;
+  font-size: 1.05rem;
+}
+
+input[type="text"]::placeholder{
+  color: rgba(168,179,199,0.75);
+}
+
+input[type="text"]:focus{
+  border-color: rgba(99,102,241,0.55);
+  box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
+}
+
+/* Privacy textarea */
+#policy-input{
+  width: 100%;
+  height: 340px;
+  resize: none;
+  overflow-y: auto;
+  padding: 16px;
+  margin-top: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(15,23,42,0.45);
+  color: var(--text);
+  outline: none;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+#policy-input:focus{
+  border-color: rgba(99,102,241,0.55);
+  box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
+}
+
+/* Buttons */
+button{
+  padding: 14px 20px;
+  border: none;
+  border-radius: 14px;
+  background: var(--accent);
+  color: #07140b;
+  font-weight: 900;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+}
+
+button:hover{
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+/* Space under summarize button */
+#summarize-button{
+  margin-top: 10px;
+  margin-bottom: 12px;
+}
+
+/* =========================
+   Results / Summary
+   ========================= */
+#results, #summary-result{
+  margin-top: 18px;
+  padding: 20px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--panel-soft);
+  color: var(--text);
+}
+
+/* Hide empty boxes so you don't see blank bars */
+#results:empty,
+#summary-result:empty{
+  display: none;
+}
+
+.cookie-count{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 8px 0;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(30,41,59,0.75);
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+/* Tooltip */
+.icon{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.tooltip{
+  visibility: hidden;
+  opacity: 0;
+  width: 240px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  position: absolute;
+  z-index: 50;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255,255,255,0.92);
+  color: #111827;
+  border: 1px solid rgba(0,0,0,0.08);
+  transition: opacity 0.18s ease, visibility 0.18s ease;
+  text-align: center;
+  font-weight: 600;
+}
+
+.tooltip::after{
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 7px;
+  border-style: solid;
+  border-color: rgba(255,255,255,0.92) transparent transparent transparent;
 }
 
 .icon:hover .tooltip,
-.icon:focus .tooltip {
-    visibility: visible;
-    opacity: 1;
+.icon:focus .tooltip{
+  visibility: visible;
+  opacity: 1;
 }
 
-/* Title Screen Styling */
-.title-screen {
-    text-align: center;
-    padding: 30px;
-    background-color: #4b6584; /* Darker background for title */
-    color: white;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+/* Loading indicator (bigger) */
+#loading-icon{
+  display: none; /* JS toggles to flex */
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--panel-soft);
+  color: var(--text);
+  font-size: 1.25rem;
 }
 
-.title-screen h2 {
-    font-size: 2em;
-    font-weight: bold;
-    color: #ffffff;
+#loading-icon ion-icon{
+  font-size: 2.6rem;
 }
 
-.title-screen p {
-    font-size: 1.1em;
-    margin-top: 10px;
-    color: #d3d3d3;
+#loading-icon p{
+  margin: 0;
+  color: var(--text);
+  font-weight: 800;
+  font-size: 1.15rem;
 }
 
-/* Chart Styling */
-canvas {
-    margin-top: 20px;
+/* Charts */
+canvas{ margin-top: 18px; }
+
+/* Summary text formatting */
+#summary-result pre, pre{
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: transparent;
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.98rem;
+  line-height: 1.55;
 }
 
-#loading-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 20px;
-    font-size: 1.2em;
-    color: #ffffff;
+/* =========================
+   Cookie Guide upgrades
+   ========================= */
+
+/* Make guide lists look like cards */
+.container ul{
+  margin: 14px 0 22px 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
 }
 
-#loading-icon ion-icon {
-    font-size: 2em;
-    margin-right: 10px;
-    animation: spin 1s linear infinite;
+.container ul li{
+  position: relative;
+  padding: 14px 16px 14px 26px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--panel-soft);
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+/* Accent bar */
+.container ul li::before{
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 14px;
+  bottom: 14px;
+  width: 4px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(99,102,241,0.9), rgba(34,197,94,0.85));
+  opacity: 0.9;
 }
 
-.logo {
-    width: 150px; /* Adjust as needed */
-    height: auto; /* Maintains aspect ratio */
-    display: block;
+.container ul li strong{
+  display: inline-block;
+  margin-bottom: 6px;
+  font-size: 1.05rem;
 }
 
-img.logo {
-    position: absolute;
-    top: 10px; /* Adjust this value */
-    left: 10px; /* Adjust this value */
-    z-index: 10; /* Ensure it stays on top of other elements */
-}
+/* =========================
+   Mobile tweaks
+   ========================= */
+@media (max-width: 700px){
+  body{ padding: 12px; }
 
-/* Navigation Bar Styling */
-nav ul {
-    display: flex;
-    list-style-type: none;
-    padding: 0;
-    background-color: #333333; /* Darker background for nav bar */
-    margin: 0;
-    justify-content: center;
-}
+  header, .container{
+    max-width: 100%;
+    padding: 14px;
+  }
 
-nav ul li {
-    margin: 0 20px;
-}
+  .logo{ width: 120px; }
 
-nav ul li a {
-    color: #d3d3d3; /* Light text for nav links */
-    text-decoration: none;
-    font-weight: bold;
-    padding: 15px;
-    display: block;
-}
+  nav ul{ gap: 12px; }
 
-nav ul li a:hover {
-    background-color: #937145; /* Darker hover color */
-    border-radius: 5px;
-}
+  nav ul li a{
+    font-size: 1.05rem;
+    padding: 12px 14px;
+  }
 
-/* Styling for the Privacy Policy Text Box and Description */
-#policy-input {
-    width: 100%;
-    height: 300px; /* Fixed height */
-    resize: none; /* Prevents resizing */
-    overflow-y: auto; /* Enables vertical scrolling */
-    padding: 10px;
-    border: 1px solid #5e5e5e; /* Darker border */
-    background-color: #333333; /* Dark background */
-    color: #d3d3d3; /* Light text */
-    border-radius: 8px;
-    font-size: 1rem;
-    line-height: 1.5;
-    box-sizing: border-box;
-    margin-top: 10px;
-}
-
-.container p {
-    font-size: 1.1rem;
-    color: #d3d3d3; /* Light text color */
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-/* Increased Font Size for Older Audience */
-.container {
-    font-size: 1.2rem;
-    line-height: 1.6;
-}
-
-h2 {
-    font-size: 1.6rem;
-    color: #d4a373; /* Heading color for better contrast */
-}
-
-p, li {
-    font-size: 1.2rem;
-    color: #d3d3d3;
+  h1{ font-size: 2.4rem; }
 }
