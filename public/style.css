@@ -1,239 +1,211 @@
+/* ===== GLOBAL ===== */
+
 body {
-    font-family: 'Roboto', sans-serif; /* Modern font */
-    background-color: #1c1c1c; /* Dark background */
+    font-family: 'Inter', sans-serif;
+    background: #0f172a;
     margin: 0;
     padding: 20px;
-    color: #cacaca; /* Light text color for dark background */
+    color: #e5e7eb;
 }
+
+/* ===== HEADINGS ===== */
 
 h1 {
-    font-size: 3.0rem;
+    font-size: 3rem;
     text-align: center;
-    color: #ffffff; /* Lighter heading color */
+    margin-bottom: 10px;
 }
 
-.container {
-    max-width: 800px;
-    margin: auto;
-    padding: 30px;
-    background: #2b2b2b; /* Darker background for container */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    border-radius: 8px;
+h2 {
+    font-size: 1.6rem;
+    color: #f3f4f6;
+    margin-top: 30px;
 }
+
+/* ===== CONTAINER ===== */
+
+.container {
+    max-width: 850px;
+    margin: auto;
+    padding: 40px;
+    background: #1e293b;
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+}
+
+/* ===== HERO / TITLE SECTION ===== */
+
+.title-screen {
+    text-align: center;
+    padding: 25px;
+    margin-bottom: 30px;
+    background: linear-gradient(135deg,#6366f1,#22c55e);
+    border-radius: 10px;
+    color: white;
+}
+
+.title-screen p {
+    opacity: 0.9;
+    margin-top: 10px;
+}
+
+/* ===== INPUT ===== */
 
 input[type="text"] {
     width: 100%;
-    padding: 12px;
-    margin: 10px 0;
-    border: 1px solid #5e5e5e; /* Darker border color */
-    background-color: #333333; /* Dark input background */
-    color: #d3d3d3; /* Light text */
+    padding: 14px;
+    margin: 12px 0;
     border-radius: 8px;
+    border: none;
+    background: #334155;
+    color: white;
     font-size: 1rem;
 }
 
+input::placeholder {
+    color: #94a3b8;
+}
+
+/* ===== BUTTON ===== */
+
 button {
-    padding: 12px 20px;
-    background-color: #33be14b7; /* Darker button color */
+    padding: 14px 24px;
+    background: #22c55e;
     color: white;
     border: none;
     border-radius: 8px;
+    font-weight: 600;
     font-size: 1rem;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.2s ease;
 }
 
 button:hover {
-    background-color: #3cb3229c; /* Slightly lighter on hover */
+    background: #16a34a;
+    transform: translateY(-1px);
 }
 
+/* ===== RESULTS CARD ===== */
+
 #results {
-    margin-top: 20px;
-    padding: 15px;
-    background-color: #333333; /* Darker background for results */
-    border-radius: 8px;
-    color: #d3d3d3;
+    margin-top: 25px;
+    padding: 20px;
+    background: #334155;
+    border-radius: 10px;
 }
+
+/* ===== COOKIE COUNT ROWS ===== */
 
 .cookie-count {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    margin: 5px 0;
-    font-weight: bold;
-    color: #d3d3d3;
-    background-color: #444444; /* Darker background for counts */
-    padding: 8px;
-    border-radius: 5px;
+    align-items: center;
+    padding: 10px;
+    margin: 6px 0;
+    background: #1e293b;
+    border-radius: 6px;
+    font-weight: 600;
 }
 
-/* Icon styles */
+/* ===== TOOLTIP ===== */
+
 .icon {
     position: relative;
-    display: inline-block;
     cursor: pointer;
-    margin-left: 8px;
 }
 
-/* Tooltip styles */
 .tooltip {
     visibility: hidden;
     width: 220px;
-    background-color: rgba(255, 255, 255, 0.8); /* Light tooltip on dark background */
-    color: #000; /* Dark text for contrast */
+    background: white;
+    color: black;
     text-align: center;
-    border-radius: 8px;
+    border-radius: 6px;
     padding: 8px;
     position: absolute;
-    z-index: 1;
     bottom: 125%;
     left: 50%;
     transform: translateX(-50%);
     opacity: 0;
-    transition: opacity 0.3s, visibility 0.3s;
+    transition: 0.25s;
 }
 
-.tooltip::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 6px;
-    border-style: solid;
-    border-color: rgba(255, 255, 255, 0.8) transparent transparent transparent;
-}
-
-.icon:hover .tooltip,
-.icon:focus .tooltip {
+.icon:hover .tooltip {
     visibility: visible;
     opacity: 1;
 }
 
-/* Title Screen Styling */
-.title-screen {
-    text-align: center;
-    padding: 30px;
-    background-color: #4b6584; /* Darker background for title */
-    color: white;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-}
+/* ===== CHART ===== */
 
-.title-screen h2 {
-    font-size: 2em;
-    font-weight: bold;
-    color: #ffffff;
-}
-
-.title-screen p {
-    font-size: 1.1em;
-    margin-top: 10px;
-    color: #d3d3d3;
-}
-
-/* Chart Styling */
 canvas {
-    margin-top: 20px;
+    margin-top: 25px;
 }
+
+/* ===== LOADING ===== */
 
 #loading-icon {
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     margin-top: 20px;
-    font-size: 1.2em;
-    color: #ffffff;
+    font-size: 1.2rem;
 }
 
 #loading-icon ion-icon {
-    font-size: 2em;
+    font-size: 2rem;
     margin-right: 10px;
     animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
-.logo {
-    width: 150px; /* Adjust as needed */
-    height: auto; /* Maintains aspect ratio */
-    display: block;
-}
+/* ===== NAVBAR ===== */
 
-img.logo {
-    position: absolute;
-    top: 10px; /* Adjust this value */
-    left: 10px; /* Adjust this value */
-    z-index: 10; /* Ensure it stays on top of other elements */
-}
-
-/* Navigation Bar Styling */
 nav ul {
     display: flex;
-    list-style-type: none;
-    padding: 0;
-    background-color: #333333; /* Darker background for nav bar */
-    margin: 0;
     justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin-bottom: 30px;
 }
 
 nav ul li {
-    margin: 0 20px;
+    margin: 0 15px;
 }
 
 nav ul li a {
-    color: #d3d3d3; /* Light text for nav links */
     text-decoration: none;
-    font-weight: bold;
-    padding: 15px;
-    display: block;
+    color: #cbd5f5;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 6px;
 }
 
 nav ul li a:hover {
-    background-color: #937145; /* Darker hover color */
-    border-radius: 5px;
+    background: #334155;
 }
 
-/* Styling for the Privacy Policy Text Box and Description */
+/* ===== TEXTAREA (PRIVACY POLICY PAGE) ===== */
+
 #policy-input {
     width: 100%;
-    height: 300px; /* Fixed height */
-    resize: none; /* Prevents resizing */
-    overflow-y: auto; /* Enables vertical scrolling */
-    padding: 10px;
-    border: 1px solid #5e5e5e; /* Darker border */
-    background-color: #333333; /* Dark background */
-    color: #d3d3d3; /* Light text */
+    height: 300px;
+    padding: 12px;
     border-radius: 8px;
-    font-size: 1rem;
-    line-height: 1.5;
-    box-sizing: border-box;
-    margin-top: 10px;
+    border: none;
+    background: #334155;
+    color: white;
+    resize: none;
 }
 
-.container p {
-    font-size: 1.1rem;
-    color: #d3d3d3; /* Light text color */
-    text-align: center;
-    margin-bottom: 10px;
-}
+/* ===== SUMMARY OUTPUT ===== */
 
-/* Increased Font Size for Older Audience */
-.container {
-    font-size: 1.2rem;
-    line-height: 1.6;
-}
-
-h2 {
-    font-size: 1.6rem;
-    color: #d4a373; /* Heading color for better contrast */
-}
-
-p, li {
-    font-size: 1.2rem;
-    color: #d3d3d3;
+#summary-result {
+    margin-top: 20px;
+    padding: 18px;
+    background: #334155;
+    border-radius: 10px;
+    white-space: pre-wrap;
 }
