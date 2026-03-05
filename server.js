@@ -1,7 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const path = require('path');
-const puppeteer = require('puppeteer'); // Ensure this is the full puppeteer package
+const puppeteer = require('puppeteer');
 require('dotenv').config();
 const { GoogleGenAI } = require('@google/genai');
 
@@ -11,97 +11,32 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const API_KEY = process.env.GOOGLE_API_KEY;  // Google API key from .env
-const ai = new GoogleGenAI({ apiKey:API_KEY});
+const API_KEY = process.env.GOOGLE_API_KEY;
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 
-const MAX_RETRIES = 3; // Retry limit for failed page loads
+const MAX_RETRIES = 3;
 
-app.post('/analyze', async (req, res) => {
-    const { url } = req.body;
-    const formattedUrl = url.replace(/^https?:\/\//, '').replace(/\.com$/, '');
+// ------------------------
+// Performance helpers
+// ------------------------
 
-    try {
-        const browser = await puppeteer.launch({
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox'], // Avoid permission errors
-            timeout: 60000 // Increase timeout to 60 seconds
-        });
+// Reuse a single Chromium instance across requests (big speedup)
+let browserPromise = null;
 
-        const page = await browser.newPage();
+async function getBrowser() {
+  if (!browserPromise) {
+    browserPromise = puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+  }
+  return browserPromise;
+}
 
-        // Block unnecessary requests (images, fonts, stylesheets)
-        await page.setRequestInterception(true);
-        page.on('request', (request) => {
-            if (['image', 'stylesheet', 'font'].includes(request.resourceType())) {
-                request.abort();
-            } else {
-                request.continue();
-            }
-        });
+// Simple in-memory cache for identical policy submissions
+const summaryCache = new Map();
 
-        // Retry logic for slow-loading pages
-        let attempt = 0;
-        let success = false;
-        while (attempt < MAX_RETRIES && !success) {
-            try {
-                await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 }); // Wait for network idle
-                await page.waitForSelector('body'); // Wait for the body to be fully loaded
-                success = true;
-            } catch (error) {
-                attempt++;
-                console.warn(`Attempt ${attempt} failed. Retrying...`);
-            }
-        }
-
-        if (!success) {
-            await browser.close();
-            return res.status(500).json({ error: 'Failed to load the website after multiple attempts.' });
-        }
-
-        const cookies = await page.cookies();
-
-        const cookieCounts = {
-            necessary: 0,
-            analytics: 0,
-            functional: 0,
-            performance: 0,
-            advertisement: 0,
-            other: 0,
-            httponly: 0,
-        };
-
-        cookies.forEach(cookie => {
-            const lowerCaseCookie = cookie.name.toLowerCase();
-
-            if (cookie.httpOnly) {
-                cookieCounts.httponly++;
-            }
-
-            if (lowerCaseCookie.includes('session') || lowerCaseCookie.includes('csrf') || lowerCaseCookie.includes('auth')) {
-                cookieCounts.necessary++;
-            } else if (lowerCaseCookie.includes('_ga') || lowerCaseCookie.includes('analytics') || lowerCaseCookie.includes('_gid')) {
-                cookieCounts.analytics++;
-            } else if (lowerCaseCookie.includes('language') || lowerCaseCookie.includes('preferences')) {
-                cookieCounts.functional++;
-            } else if (lowerCaseCookie.includes('perf') || lowerCaseCookie.includes('load')) {
-                cookieCounts.performance++;
-            } else if (lowerCaseCookie.includes('ad') || lowerCaseCookie.includes('ads') || lowerCaseCookie.includes('track')) {
-                cookieCounts.advertisement++;
-            } else {
-                cookieCounts.other++;
-            }
-        });
-
-        const totalCookies = Object.values(cookieCounts).reduce((sum, count) => sum + count, 0);
-        await browser.close();
-
-        res.json({ totalCookies, cookieCounts, formattedUrl });
-    } catch (error) {
-        console.error("Error analyzing cookies:", error);
-        res.status(500).json({ error: 'Error retrieving cookies from the provided URL.' });
-    }
-});
-
+// Extract text from @google/genai response (handles different shapes)
 function extractText(resp) {
   if (resp && typeof resp.text === "string" && resp.text.trim()) {
     return resp.text.trim();
@@ -119,10 +54,129 @@ function extractText(resp) {
   return "";
 }
 
+// ------------------------
+// Cookie analyzer endpoint
+// ------------------------
+app.post('/analyze', async (req, res) => {
+  const { url } = req.body;
+  const formattedUrl = url.replace(/^https?:\/\//, '').replace(/\.com$/, '');
+
+  let page = null;
+
+  try {
+    const browser = await getBrowser();
+    page = await browser.newPage();
+
+    // Some sites stall / behave differently without a "real" UA
+    await page.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36"
+    );
+
+    // Block unnecessary requests (speeds up a lot)
+    await page.setRequestInterception(true);
+    page.on('request', (request) => {
+      const t = request.resourceType();
+      if (['image', 'stylesheet', 'font', 'media'].includes(t)) {
+        request.abort();
+      } else {
+        request.continue();
+      }
+    });
+
+    // Retry logic for slow-loading pages
+    let attempt = 0;
+    let success = false;
+
+    while (attempt < MAX_RETRIES && !success) {
+      try {
+        // domcontentloaded is usually faster than networkidle2 on modern sites
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+
+        // Give scripts a moment to set cookies without waiting forever
+        await new Promise(r => setTimeout(r, 1500));
+
+        success = true;
+      } catch (error) {
+        attempt++;
+        console.warn(`Attempt ${attempt} failed. Retrying...`);
+      }
+    }
+
+    if (!success) {
+      if (page) await page.close();
+      return res.status(500).json({ error: 'Failed to load the website after multiple attempts.' });
+    }
+
+    const cookies = await page.cookies();
+
+    const cookieCounts = {
+      necessary: 0,
+      analytics: 0,
+      functional: 0,
+      performance: 0,
+      advertisement: 0,
+      other: 0,
+      httponly: 0,
+    };
+
+    cookies.forEach(cookie => {
+      const lowerCaseCookie = cookie.name.toLowerCase();
+
+      if (cookie.httpOnly) {
+        cookieCounts.httponly++;
+      }
+
+      if (lowerCaseCookie.includes('session') || lowerCaseCookie.includes('csrf') || lowerCaseCookie.includes('auth')) {
+        cookieCounts.necessary++;
+      } else if (lowerCaseCookie.includes('_ga') || lowerCaseCookie.includes('analytics') || lowerCaseCookie.includes('_gid')) {
+        cookieCounts.analytics++;
+      } else if (lowerCaseCookie.includes('language') || lowerCaseCookie.includes('preferences')) {
+        cookieCounts.functional++;
+      } else if (lowerCaseCookie.includes('perf') || lowerCaseCookie.includes('load')) {
+        cookieCounts.performance++;
+      } else if (lowerCaseCookie.includes('ad') || lowerCaseCookie.includes('ads') || lowerCaseCookie.includes('track')) {
+        cookieCounts.advertisement++;
+      } else {
+        cookieCounts.other++;
+      }
+    });
+
+    // Keep your existing total logic (includes httponly)
+    const totalCookies = Object.values(cookieCounts).reduce((sum, count) => sum + count, 0);
+
+    await page.close();
+
+    res.json({ totalCookies, cookieCounts, formattedUrl });
+  } catch (error) {
+    console.error("Error analyzing cookies:", error);
+    try {
+      if (page) await page.close();
+    } catch (e) {}
+    res.status(500).json({ error: 'Error retrieving cookies from the provided URL.' });
+  }
+});
+
+// ------------------------
+// Privacy policy summarizer
+// ------------------------
 app.post('/summarize', async (req, res) => {
   const { policy } = req.body;
 
   try {
+    const policyText = (policy || "").trim();
+    if (!policyText) {
+      return res.status(400).json({ error: "Please paste a privacy policy first." });
+    }
+
+    // Cache hits return instantly
+    if (summaryCache.has(policyText)) {
+      return res.json({ summary: summaryCache.get(policyText) });
+    }
+
+    // Cap input size (big speedup on massive policies)
+    const MAX_CHARS = 30000;
+    const clippedPolicy = policyText.length > MAX_CHARS ? policyText.slice(0, MAX_CHARS) : policyText;
+
     const prompt = `Summarize ONLY the provided text.
 
 Hard requirements:
@@ -159,7 +213,7 @@ If a category is not covered, write exactly:
 - Not stated.
 
 Policy:
-${policy}`;
+${clippedPolicy}`;
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
@@ -167,6 +221,9 @@ ${policy}`;
     });
 
     const summary = extractText(response) || "No summary generated.";
+
+    summaryCache.set(policyText, summary);
+
     res.json({ summary });
   } catch (error) {
     console.error("Error in Gemini API request:", error);
@@ -175,7 +232,5 @@ ${policy}`;
 });
 
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
-
-
