@@ -102,22 +102,80 @@ app.post('/analyze', async (req, res) => {
     }
 });
 
+function extractText(resp) {
+  if (resp && typeof resp.text === "string" && resp.text.trim()) {
+    return resp.text.trim();
+  }
+
+  const parts =
+    resp?.candidates?.[0]?.content?.parts ||
+    resp?.response?.candidates?.[0]?.content?.parts;
+
+  if (Array.isArray(parts)) {
+    const t = parts.map(p => p?.text || "").join("").trim();
+    if (t) return t;
+  }
+
+  return "";
+}
+
 app.post('/summarize', async (req, res) => {
-    const { policy } = req.body;
-    try {
-        const prompt = `Please summarize the following privacy policy into bullet points, listing the pros and cons separately:\n\nPolicy:\n${policy}`;
+  const { policy } = req.body;
 
-        const result = await model.generateContent(prompt);
-        const summary = result.response.text() || "No summary generated.";
+  try {
+    const prompt = `Summarize ONLY the provided text.
 
-        res.json({ summary });
-    } catch (error) {
-        console.error("Error in Gemini API request:", error);
-        res.status(500).json({ error: 'Failed to generate summary' });
-    }
+Hard requirements:
+- NEVER return an empty response.
+- If any formatting rule conflicts, output a best-effort answer anyway.
+- No paragraphs. Bullets only.
+- Do not reference sections not included.
+
+Use this format:
+
+DATA COLLECTED
+(max 6 bullets, <= 12 words each)
+- ...
+
+HOW IT'S USED / CONTEXT
+(max 4 bullets, <= 12 words each)
+- ...
+
+USER CHOICE & CONTROLS
+(max 4 bullets, <= 12 words each)
+- ...
+
+RETENTION / STORAGE
+(max 4 bullets, <= 12 words each)
+- ...
+
+PRIVACY TRADEOFFS
+Pros (exactly 3 bullets, <= 14 words each)
+- ...
+Cons (exactly 5 bullets, <= 14 words each)
+- ...
+
+If a category is not covered, write exactly:
+- Not stated.
+
+Policy:
+${policy}`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt
+    });
+
+    const summary = extractText(response) || "No summary generated.";
+    res.json({ summary });
+  } catch (error) {
+    console.error("Error in Gemini API request:", error);
+    res.status(500).json({ error: "Failed to generate summary" });
+  }
 });
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+
 
